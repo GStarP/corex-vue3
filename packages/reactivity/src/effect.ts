@@ -1,4 +1,4 @@
-import { extend, isArray } from '../../shared';
+import { isArray } from '../../shared';
 
 const targetMap = new WeakMap();
 
@@ -12,12 +12,13 @@ export interface ReactiveEffectRunner<T = any> {
 // 应被响应式的 fn 会被包装成 ReactiveEffect 对象
 export class ReactiveEffect {
   deps: Set<ReactiveEffect>[] = [];
-  // scheduler 允许用户更灵活地定义 fn 的执行逻辑
+  // scheduler 允许用户更灵活地定义 RE 被触发时的执行逻辑
   // 在 computed 中，我们将初次使用到它
   constructor(public fn, public scheduler: EffectScheduler | null = null) {}
-  // 执行 fn 并收集依赖
+  // 执行 fn 并收集 RE
   run() {
     try {
+      // 声明自己应被收集
       activeEffect = this;
       shouldTrack = true;
       return this.fn();
@@ -37,8 +38,8 @@ export let shouldTrack = true;
 export function track(target, key) {
   // 如果有 RE 正在运行，才会收集
   // 否则说明使用响应式变量的函数无需响应式
-  if (activeEffect) {
-    // 根据 target 和 key 定位依赖集合
+  if (shouldTrack && activeEffect) {
+    // 根据 target 和 key 定位 Dep
     // 如果不存在则新建
     let depsMap = targetMap.get(target);
     if (!depsMap) {
@@ -48,7 +49,7 @@ export function track(target, key) {
     if (!dep) {
       depsMap.set(key, (dep = new Set()));
     }
-    // 向依赖集合中收集当前 RE
+    // 向 Dep中收集当前 RE
     trackEffects(dep);
   }
 }
@@ -63,7 +64,7 @@ export function trackEffects(dep) {
   }
 }
 
-// 根据 target 和 key 定位依赖集合并触发
+// 根据 target 和 key 定位 Dep并触发
 export function trigger(target, key) {
   const depsMap = targetMap.get(target);
   if (!depsMap) {
