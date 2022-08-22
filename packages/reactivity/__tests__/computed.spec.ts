@@ -25,17 +25,13 @@ describe('computed', () => {
   // 测试二：计算属性懒更新
   test('computed lazy update', () => {
     let a = ref(1);
-    const b = computed(() => a.value - 1);
-    let c = 0;
-    function setC() {
-      c = b.value + 1;
-    }
-    effect(setC);
+    const getter = jest.fn(() => a.value - 1);
+    const b = computed(getter);
     a.value = 2;
-    // 未使用 b 时 b 并不更新，因此 c 也不会更新
-    expect(c).toBe(1);
-    // 使用 b 导致 b 更新，进而导致 c 更新
+    // 未使用 b，getter 未被调用
+    expect(getter).toHaveBeenCalledTimes(0);
+    // 使用 b，getter 被调用，b.value 更新
     expect(b.value).toBe(1);
-    expect(c).toBe(2);
+    expect(getter).toHaveBeenCalledTimes(1);
   });
 });

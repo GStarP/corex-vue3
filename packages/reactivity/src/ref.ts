@@ -11,6 +11,11 @@ export interface Ref<T = any> {
   value: T;
 }
 
+type RefBase<T> = {
+  dep?: Set<ReactiveEffect>;
+  value: T;
+};
+
 // Ref 实现类
 class RefImpl<T> {
   // 用 _value 保存原始类型值
@@ -37,7 +42,7 @@ class RefImpl<T> {
 }
 
 // 如果符合收集条件，使用自己的 Dep 进行收集
-export function trackRefValue(ref: RefImpl<any>) {
+export function trackRefValue(ref: RefBase<any>) {
   if (shouldTrack && activeEffect) {
     // 第一次收集的时候才会创建 Dep
     // 如果初始化时就创建可能导致过多的内存使用
@@ -45,7 +50,7 @@ export function trackRefValue(ref: RefImpl<any>) {
   }
 }
 // 如果有 Dep，则将其触发
-export function triggerRefValue(ref: RefImpl<any>) {
+export function triggerRefValue(ref: RefBase<any>) {
   if (ref.dep) {
     triggerEffects(ref.dep);
   }
