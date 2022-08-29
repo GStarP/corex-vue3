@@ -1,4 +1,4 @@
-import { isArray } from '../../shared';
+import { isArray } from '../../shared/src';
 
 const targetMap = new WeakMap();
 

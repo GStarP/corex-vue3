@@ -1,4 +1,4 @@
-import { hasChanged, isObject } from '../../shared';
+import { hasChanged, isObject } from '../../shared/src';
 import { track, trigger } from './effect';
 
 const reactiveMap = new WeakMap();

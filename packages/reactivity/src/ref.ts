@@ -1,4 +1,4 @@
-import { hasChanged } from '../../shared';
+import { hasChanged } from '../../shared/src';
 import {
   activeEffect,
   ReactiveEffect,
