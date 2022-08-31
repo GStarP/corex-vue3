@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>render_element</title>
+</head>
+
+<body>
+  <style>
+    .wrapper {
+      padding: 1rem;
+      border: 2px solid #000;
+    }
+  </style>
+  <div id="app"></div>
+  <script type="module">
+    import { h, render } from '../../../vue/dist/corex-vue.esm-bundler.js';
+    const rootContainer = document.querySelector("#app");
+    // 测试一：渲染 DOM 元素
+    render(
+      // 测试二：props.class
+      h('div', { class: 'wrapper' }, [
+        // 测试三：props.style
+        h('h1', { style: 'color: red' }, 'Hello'),
+        // 测试四：props.onEvent
+        h('button', { onClick: () => { alert('hello') } }, 'CLICK')
+      ]),
+      rootContainer
+    );
+  </script>
+</body>
+
+</html>
