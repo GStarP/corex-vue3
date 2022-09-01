@@ -1,4 +1,4 @@
-import { isString } from '../../shared/src';
+import { isObject, isString } from '../../shared/src';
 import { ShapeFlags } from '../../shared/src/shapeFlags';
 
 export interface VNode {
@@ -12,15 +12,28 @@ export interface VNode {
   el: Node | null;
   // 记录节点自身以及子节点的类型
   shapeFlag: number;
+  // 保存组件实例
+  component: any;
 }
 
 export function createVNode(type, props = null, children = null): VNode {
+  // @IGNORE 对 class 和 style 进行处理
+
+  // @IGNORE 只考虑有状态组件
+  // 这种连续三元表达式的写法可以借鉴
+  const shapeFlag = isString(type)
+    ? ShapeFlags.ELEMENT
+    : isObject(type)
+    ? ShapeFlags.STATEFUL_COMPONENT
+    : 0;
+
   const vnode = {
     type,
     props: props,
     children: children,
     el: null,
-    shapeFlag: ShapeFlags.ELEMENT
+    shapeFlag: shapeFlag,
+    component: null
   };
 
   // 将 children 的类型也记录在 shapeFlag 上

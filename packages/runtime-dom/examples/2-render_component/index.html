@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>render_component</title>
+</head>
+
+<body>
+  <style>
+    .wrapper {
+      padding: 1rem;
+      border: 2px solid #000;
+    }
+  </style>
+  <div id="app"></div>
+  <script type="module">
+    import { h, render, createApp } from '../../../vue/dist/corex-vue.esm-bundler.js';
+    const rootContainer = document.querySelector("#app");
+    const App = {
+      setup() {
+        // 测试一：setup 返回渲染函数
+        return () => h('div', null, [
+          // 测试二：嵌套组件
+          // 测试三：组件设置 attr
+          h(Banner, { class: 'wrapper' }),
+          h('button', null, 'CLICK')
+        ])
+      }
+    }
+    const Banner = {
+      setup() {
+        const msg = 'Hello'
+        return () => h('h1', null, msg)
+      }
+    }
+    // 测试四：挂载组件
+    const app = createApp(App)
+    app.mount(rootContainer)
+  </script>
+</body>
+
+</html>

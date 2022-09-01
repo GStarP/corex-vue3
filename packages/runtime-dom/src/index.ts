@@ -15,4 +15,9 @@ export function render(vnode, container) {
   ensureRenderer().render(vnode, container);
 }
 
+export function createApp(...args) {
+  // @IGNORE 为求简单，直接导出
+  return ensureRenderer().createApp(...args);
+}
+
 export * from '../../runtime-core/src';
