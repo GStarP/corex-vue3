@@ -10,8 +10,12 @@ export interface ComponentInternalInstance {
   type;
   parent;
 
+  // 发生更新后的 VNode
+  next;
   // 组件 VDOM
   subTree;
+  // 组件渲染的 RE
+  effect;
   // 挂载&更新函数
   update;
   // 渲染函数
@@ -32,6 +36,9 @@ export interface ComponentInternalInstance {
   // (before)Mounted
   bm: LifecycleHook;
   m: LifecycleHook;
+  // (before)Updated
+  bu: LifecycleHook;
+  u: LifecycleHook;
 }
 
 let uid = 0;
@@ -44,6 +51,9 @@ export function createComponentInstance(vnode, parent) {
     vnode,
     type,
     parent,
+
+    next: null,
+    effect: null,
     subTree: null,
     update: null,
     render: null,
@@ -57,7 +67,9 @@ export function createComponentInstance(vnode, parent) {
 
     isMounted: false,
     bm: null,
-    m: null
+    m: null,
+    bu: null,
+    u: null
   };
 
   instance.ctx = { _: instance };
