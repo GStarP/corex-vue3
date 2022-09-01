@@ -23,15 +23,16 @@
         return () => h('div', null, [
           // 测试二：嵌套组件
           // 测试三：组件设置 attr
-          h(Banner, { class: 'wrapper' }),
+          h(Banner, { class: 'wrapper', msg: 'Hello' }),
           h('button', null, 'CLICK')
         ])
       }
     }
     const Banner = {
-      setup() {
-        const msg = 'Hello'
-        return () => h('h1', null, msg)
+      props: ['msg'],
+      // 测试五：props
+      setup(props) {
+        return () => h('h1', null, props.msg)
       }
     }
     // 测试四：挂载组件

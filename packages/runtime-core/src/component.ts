@@ -1,5 +1,5 @@
 import { isFunction, isObject } from '../../shared/src';
-import { initProps } from './componentProps';
+import { initProps, normalizePropsOptions } from './componentProps';
 import { VNode } from './vnode';
 
 type LifecycleHook<TFn = Function> = TFn[] | null;
@@ -19,8 +19,12 @@ export interface ComponentInternalInstance {
   // 公共代理
   proxy;
 
+  // props 定义
+  propsOptions;
+
   // 组件状态相关
   ctx;
+  props;
   attrs;
 
   // 生命周期相关
@@ -34,6 +38,7 @@ let uid = 0;
 
 export function createComponentInstance(vnode, parent) {
   const type = vnode.type;
+
   const instance = {
     uid: uid++,
     vnode,
@@ -43,8 +48,13 @@ export function createComponentInstance(vnode, parent) {
     update: null,
     render: null,
     proxy: null,
+
+    propsOptions: normalizePropsOptions(type),
+
     ctx: {},
+    props: {},
     attrs: {},
+
     isMounted: false,
     bm: null,
     m: null
@@ -74,8 +84,8 @@ function setupStatefulComponent(instance: ComponentInternalInstance) {
   // 2. 执行 setup
   const { setup } = Component;
   if (setup) {
-    // @IGNORE 响应式相关
-    const setupResult = setup.call(instance);
+    // @IGNORE 只支持 setup(props)
+    const setupResult = setup.call(instance, instance.props);
     // 根据 setupResult 类型作不同处理
     handleSetupResult(instance, setupResult);
   }
