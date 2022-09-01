@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>reactive_rendering</title>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module">
+    import { h, render, createApp, ref } from '../../../vue/dist/corex-vue.esm-bundler.js';
+    const rootContainer = document.querySelector("#app");
+    const App = {
+      setup() {
+        const count = ref(0)
+        const inc = () => {
+          count.value++
+        }
+        return () => h('div', null, [
+          h('h1', null, count.value),
+          h('button', { onClick: inc }, 'CLICK')
+        ])
+      }
+    }
+    const app = createApp(App)
+    app.mount(rootContainer)
+  </script>
+</body>
+
+</html>

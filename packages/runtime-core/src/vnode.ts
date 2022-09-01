@@ -1,5 +1,8 @@
-import { isObject, isString } from '../../shared/src';
+import { isArray, isObject, isString } from '../../shared/src';
 import { ShapeFlags } from '../../shared/src/shapeFlags';
+
+// @IGNORE Vue3 为了效率，在生产环境下都使用 Symbol(undefined)
+export const Text = Symbol('Text');
 
 export interface VNode {
   // 类型
@@ -36,15 +39,27 @@ export function createVNode(type, props = null, children = null): VNode {
     component: null
   };
 
-  // 将 children 的类型也记录在 shapeFlag 上
-  if (children) {
-    vnode.shapeFlag |= isString(children)
-      ? ShapeFlags.TEXT_CHILDREN
-      : ShapeFlags.ARRAY_CHILDREN;
-  }
+  // @IGNPORE 编译器会保证 children 类型合理
+  // 而我们这里是手动传入，可能 children: number
+  // 因此需要进行处理
+  normalizeChildren(vnode, children);
 
   return vnode;
 }
 
-// @IGNORE Vue3 为了效率，在生产环境下都使用 Symbol(undefined)
-export const Text = Symbol('Text');
+export function normalizeChildren(vnode: VNode, children) {
+  let type = 0;
+  const { shapeFlag } = vnode;
+  if (children == null) {
+    children = null;
+  } else if (isArray(children)) {
+    type = ShapeFlags.ARRAY_CHILDREN;
+  }
+  // @IGNORE 不允许 object 和 function 类型的 children
+  else {
+    children = String(children);
+    type = ShapeFlags.TEXT_CHILDREN;
+  }
+  vnode.children = children;
+  vnode.shapeFlag |= type;
+}
