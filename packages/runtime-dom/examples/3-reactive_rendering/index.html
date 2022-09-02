@@ -11,6 +11,10 @@
     .red {
       color: red
     }
+
+    .thin {
+      font-weight: 300;
+    }
   </style>
   <div id="app"></div>
   <script type="module">
@@ -44,12 +48,23 @@
             'red' :
             ''
         }
+        // 测试四：
+        // childCls => App.update()，但却要在子组件上触发更新
+        // 因此会走 patchChildren => patch(Banner) => updateComponent
+        const childCls = ref('')
+        const toggleChildCls = () => {
+          childCls.value = childCls.value === '' ?
+            'thin' :
+            ''
+        }
 
         return () => h('div', { class: cls.value }, [
           h('button', { onClick: inc }, 'count: ' + count.value),
           h('button', { onClick: toggleCls }, 'Change Color'),
-          h(Banner, { msg }, null),
-          h('button', { onClick: toggleMsg }, 'Change Banner')
+          // 测试四：
+          h(Banner, { msg, class: childCls.value }, null),
+          h('button', { onClick: toggleMsg }, 'Change Banner'),
+          h('button', { onClick: toggleChildCls }, 'Change Font Weight')
         ])
       }
     }

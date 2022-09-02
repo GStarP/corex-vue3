@@ -7,7 +7,11 @@ import {
   createComponentInstance,
   setupComponent
 } from './component';
-import { renderComponentRoot } from './componentRenderUtils';
+import { updateProps } from './componentProps';
+import {
+  renderComponentRoot,
+  shouldUpdateComponent
+} from './componentRenderUtils';
 import { Text, VNode } from './vnode';
 
 export function createRenderer(options) {
@@ -77,7 +81,7 @@ export function createRenderer(options) {
     if (n1 === null) {
       mountComponent(n2, container, anchor, parentComponent);
     } else {
-      // update
+      updateComponent(n1, n2);
     }
   }
 
@@ -213,6 +217,38 @@ export function createRenderer(options) {
     setupRenderEffect(instance, initialVNode, container, anchor);
   }
 
+  // 更新组件
+  const updateComponent = (n1: VNode, n2: VNode) => {
+    const instance = (n2.component = n1.component);
+    if (shouldUpdateComponent(n1, n2)) {
+      // 被父组件触发更新时，用 next 记录新 vnode
+      instance.next = n2;
+      // @IGNORE 更新队列相关，避免重复更新子组件
+
+      // 触发更新
+      instance.update();
+    } else {
+      // 无需更新，直接把 n1 替换成 n2
+      n2.el = n1.el;
+      instance.vnode = n2;
+    }
+  };
+
+  const updateComponentPreRender = (
+    instance: ComponentInternalInstance,
+    nextVNode
+  ) => {
+    // 建立 instance 和新 vnode 的关系
+    nextVNode.component = instance;
+    const prevProps = instance.vnode.props;
+    instance.vnode = nextVNode;
+    // 记得还原 instance.next
+    instance.next = null;
+    // 更新 instance 的 props&attrs
+    updateProps(instance, nextVNode.props, prevProps);
+    // @IGNORE 更新 slot
+  };
+
   const setupRenderEffect = (
     instance: ComponentInternalInstance,
     initialVNode: VNode,
@@ -248,12 +284,16 @@ export function createRenderer(options) {
         // 将只在挂载阶段用到的对象设 null 防止内存泄漏
         initialVNode = container = anchor = null as any;
       } else {
-        // 当组件自身状态变化导致更新时，next: null
-        // 当 parent 调用 processComponent 导致更新时，next: VNode
+        // 当组件自身触发更新时，next: null
+        // 当被父组件触发更新时，next: VNode
+        // 主要情况：更改子组件 props；更改子组件 slot 内容
         let { next, bu, u, vnode } = instance;
 
         if (next) {
-          // @IGNORE 暂不考虑
+          next.el = vnode.el;
+          // 如果组件不是自己触发更新，则新信息都在 next 中
+          // 在重新获得 subTree 之前，必须把这些新信息都应用到 instance.vnode 中
+          updateComponentPreRender(instance, next);
         } else {
           next = vnode;
         }
@@ -278,7 +318,10 @@ export function createRenderer(options) {
 
         // 更新 instance.vnode.el
         next.el = nextTree.el;
-        // @IGNORE 同步 parent.el
+
+        // @IGNORE 在 HOC 也就是组件套组件的情况下
+        // 最底层的组件自己触发更新，必须同步所有上层组件的 el
+        // 我们暂时只允许组件根节点为元素，因此略过
 
         // [Hook] updated
         console.log('[updated]\n', instance);

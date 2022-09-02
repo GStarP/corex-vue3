@@ -38,7 +38,7 @@ function setFullProps(
   attrs
 ) {
   const options = instance.propsOptions;
-  // 记录 attr 是否变更（以后实现更新可能用到）
+  // 记录 attr 是否变更（暂时没用）
   let hasAttrsChanged = false;
 
   if (rawProps) {
@@ -58,4 +58,24 @@ function setFullProps(
   }
 
   return hasAttrsChanged;
+}
+
+export function updateProps(
+  instance: ComponentInternalInstance,
+  rawProps,
+  rawPrevProps
+) {
+  const { props, attrs } = instance;
+  const options = instance.propsOptions;
+  let hasAttrsChanged = false;
+  // @IGNORE 这里简单地采用 full props update 全量更新
+  if (setFullProps(instance, rawProps, props, attrs)) {
+    hasAttrsChanged = true;
+  }
+  // @IGNORE 不支持动态 props，即 props 不会删除
+  // 因此 options 和 rawPrevProps 都没有使用
+  if (hasAttrsChanged) {
+    // @IGNORE 触发依赖 $attrs 的 RE
+    // 所以 hasAttrsChanged 目前对我们来说其实没用
+  }
 }
