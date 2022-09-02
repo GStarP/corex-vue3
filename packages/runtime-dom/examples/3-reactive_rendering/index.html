@@ -7,19 +7,49 @@
 </head>
 
 <body>
+  <style>
+    .red {
+      color: red
+    }
+  </style>
   <div id="app"></div>
   <script type="module">
     import { h, render, createApp, ref } from '../../../vue/dist/corex-vue.esm-bundler.js';
     const rootContainer = document.querySelector("#app");
+    const Banner = {
+      props: ['msg'],
+      setup(props) {
+        return () => h('h1', null, props.msg.value)
+      }
+    }
     const App = {
       setup() {
+        // 测试一：子元素更新
         const count = ref(0)
         const inc = () => {
           count.value++
         }
-        return () => h('div', null, [
-          h('h1', null, count.value),
-          h('button', { onClick: inc }, 'CLICK')
+        // 测试二：子组件更新
+        // 本质上是 msg => Banner.update()，与测试一没有区别
+        const msg = ref('HXW')
+        const toggleMsg = () => {
+          msg.value = msg.value === 'HXW' ?
+            'ZZN' :
+            'HXW'
+        }
+        // 测试三：改变组件根元素的 props 触发更新
+        const cls = ref('')
+        const toggleCls = () => {
+          cls.value = cls.value === '' ?
+            'red' :
+            ''
+        }
+
+        return () => h('div', { class: cls.value }, [
+          h('button', { onClick: inc }, 'count: ' + count.value),
+          h('button', { onClick: toggleCls }, 'Change Color'),
+          h(Banner, { msg }, null),
+          h('button', { onClick: toggleMsg }, 'Change Banner')
         ])
       }
     }

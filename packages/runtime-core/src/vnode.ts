@@ -49,7 +49,6 @@ export function createVNode(type, props = null, children = null): VNode {
 
 export function normalizeChildren(vnode: VNode, children) {
   let type = 0;
-  const { shapeFlag } = vnode;
   if (children == null) {
     children = null;
   } else if (isArray(children)) {

@@ -7,11 +7,7 @@ import {
   createComponentInstance,
   setupComponent
 } from './component';
-import {
-  renderComponentRoot,
-  shouldUpdateComponent,
-  updateHOCHostEl
-} from './componentRenderUtils';
+import { renderComponentRoot } from './componentRenderUtils';
 import { Text, VNode } from './vnode';
 
 export function createRenderer(options) {
@@ -137,6 +133,30 @@ export function createRenderer(options) {
     }
   };
 
+  // 更新 props
+  const patchProps = (el, vnode, oldProps, newProps, parentComponent) => {
+    if (oldProps !== newProps) {
+      // 添加和修改
+      for (const key in newProps) {
+        // @IGNORE 跳过保留键名
+        const next = newProps[key];
+        const prev = oldProps[key];
+        if (next !== prev) {
+          hostPatchProp(el, key, prev, next);
+        }
+      }
+      // 删除
+      if (oldProps !== {}) {
+        for (const key in oldProps) {
+          if (!(key in newProps)) {
+            hostPatchProp(el, key, oldProps[key], null);
+          }
+        }
+      }
+      // @IGNORE 特殊处理 key='value'
+    }
+  };
+
   // 挂载 DOM 元素
   function mountElement(vnode, container, anchor, parentComponent) {
     const { shapeFlag, props } = vnode;
@@ -168,8 +188,12 @@ export function createRenderer(options) {
   // 更新 DOM 元素
   const patchElement = (n1: VNode, n2: VNode, parentComponent) => {
     const el = (n2.el = n1.el);
-    // 对比子节点
+    const oldProps = n1.props || {};
+    const newProps = n2.props || {};
+    // 更新子节点
     patchChildren(n1, n2, el, null, parentComponent);
+    // 更新自身 props，这才是自己的更新
+    patchProps(el, n2, oldProps, newProps, parentComponent);
   };
 
   // 挂载组件
@@ -226,7 +250,7 @@ export function createRenderer(options) {
       } else {
         // 当组件自身状态变化导致更新时，next: null
         // 当 parent 调用 processComponent 导致更新时，next: VNode
-        let { next, bu, u, parent, vnode } = instance;
+        let { next, bu, u, vnode } = instance;
 
         if (next) {
           // @IGNORE 暂不考虑
@@ -273,15 +297,6 @@ export function createRenderer(options) {
 
     const update = (instance.update = () => effect.run());
     update();
-  };
-
-  const unmountChildren = (
-    children,
-    parentComponent,
-    doRemove = false,
-    start = 0
-  ) => {
-    for (let i = start; i < children.length; i++) {}
   };
 
   // 传入 vnode 获取 anchor

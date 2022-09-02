@@ -8,8 +8,9 @@ export interface ComponentInternalInstance {
   uid: number;
   vnode: VNode;
   type;
-  parent;
 
+  // 父组件实例（可能暂时不会用到，但预先定义）
+  parent;
   // 发生更新后的 VNode
   next;
   // 组件 VDOM
