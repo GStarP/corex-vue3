@@ -113,7 +113,7 @@ export function handleSetupResult(
     // 返回渲染函数
     instance.render = setupResult;
   } else if (isObject(setupResult)) {
-    // @IGNORE 暂不支持返回 setupState
-    console.error('setupState not support');
+    // @IGNORE 不支持 runtime compiler
+    console.error('runtime compiler not support');
   }
 }
