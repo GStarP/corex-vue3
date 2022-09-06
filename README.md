@@ -22,6 +22,8 @@
   - 文本内容响应式
   - 组件自身 props 响应式
   - 父组件设置子组件 props 响应式
+- `compiler_base`
+  - baseParse：源码 => AST
 
 我们的变量命名及函数划分与 Vue3 基本一致，建议对照 Vue3 源码进行阅读。
 
