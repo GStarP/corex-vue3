@@ -18,6 +18,10 @@
   - 渲染 DOM 元素
 - `renderer_component`
   - 渲染组件：仅支持 setup(props) 返回渲染函数
+- `renderer_reactive`
+  - 文本内容响应式
+  - 组件自身 props 响应式
+  - 父组件设置子组件 props 响应式
 
 我们的变量命名及函数划分与 Vue3 基本一致，建议对照 Vue3 源码进行阅读。
 
