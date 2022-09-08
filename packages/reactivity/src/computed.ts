@@ -27,6 +27,8 @@ export class ComputedRefImpl<T> {
         triggerRefValue(this);
       }
     });
+    // 记录 RE.computed
+    this.effect.computed = this;
   }
 
   get value() {
