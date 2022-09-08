@@ -1,5 +1,5 @@
 import { ReactiveEffect } from '../../reactivity/src/effect';
-import { invokeArrayFns } from '../../shared/src';
+import { EMPTY_OBJ, invokeArrayFns } from '../../shared/src';
 import { ShapeFlags } from '../../shared/src/shapeFlags';
 import { createAppAPI } from './apiCreateApp';
 import {
@@ -150,7 +150,7 @@ export function createRenderer(options) {
         }
       }
       // 删除
-      if (oldProps !== {}) {
+      if (oldProps !== EMPTY_OBJ) {
         for (const key in oldProps) {
           if (!(key in newProps)) {
             hostPatchProp(el, key, oldProps[key], null);
@@ -192,8 +192,8 @@ export function createRenderer(options) {
   // 更新 DOM 元素
   const patchElement = (n1: VNode, n2: VNode, parentComponent) => {
     const el = (n2.el = n1.el);
-    const oldProps = n1.props || {};
-    const newProps = n2.props || {};
+    const oldProps = n1.props || EMPTY_OBJ;
+    const newProps = n2.props || EMPTY_OBJ;
     // 更新子节点
     patchChildren(n1, n2, el, null, parentComponent);
     // 更新自身 props，这才是自己的更新
