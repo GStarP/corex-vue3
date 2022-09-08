@@ -1,4 +1,4 @@
-import { isFunction, isObject } from '../../shared/src';
+import { EMPTY_OBJ, isFunction, isObject } from '../../shared/src';
 import { initProps, normalizePropsOptions } from './componentProps';
 import { VNode } from './vnode';
 
@@ -51,9 +51,9 @@ export function createComponentInstance(vnode, parent) {
 
     propsOptions: normalizePropsOptions(type),
 
-    ctx: {},
-    props: {},
-    attrs: {},
+    ctx: EMPTY_OBJ,
+    props: EMPTY_OBJ,
+    attrs: EMPTY_OBJ,
 
     isMounted: false,
     bm: null,
