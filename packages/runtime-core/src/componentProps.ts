@@ -1,4 +1,4 @@
-import { hasOwn, isArray } from '../../shared/src';
+import { EMPTY_OBJ, hasOwn, isArray } from '../../shared/src';
 import { ComponentInternalInstance } from './component';
 
 export function normalizePropsOptions(comp) {
@@ -11,8 +11,8 @@ export function normalizePropsOptions(comp) {
     for (let i = 0; i < raw.length; i++) {
       // @IGNORE 规范命名
       const normalizedKey = raw[i];
-      // @TODO 暂时没搞懂映射到一个对象干什么
-      normalized[normalizedKey] = {};
+      // @TODO 可能就是一定要对应一个东西，为了简单就用空对象？
+      normalized[normalizedKey] = EMPTY_OBJ;
     }
   } else if (raw) {
     console.error('only support string[] props');
