@@ -1,3 +1,7 @@
+// 空对象只使用这一个引用表示
+// 空间占用少，判断空对象简单
+export const EMPTY_OBJ = {};
+
 const onRE = /^on[^a-z]/;
 export const isOn = (key: string) => onRE.test(key);
 

@@ -1,4 +1,5 @@
 import { isArray } from '../../shared/src';
+import { ComputedRefImpl } from './computed';
 
 const targetMap = new WeakMap();
 
@@ -10,8 +11,10 @@ export interface ReactiveEffectRunner<T = any> {
 }
 
 // 应被响应式的 fn 会被包装成 ReactiveEffect 对象
-export class ReactiveEffect {
+export class ReactiveEffect<T = any> {
   deps: Set<ReactiveEffect>[] = [];
+  // RE 如果是计算属性，则存储对其的引用
+  computed?: ComputedRefImpl<T>;
   // scheduler 允许用户更灵活地定义 RE 被触发时的执行逻辑
   // 在 computed 中，我们将初次使用到它
   constructor(public fn, public scheduler: EffectScheduler | null = null) {}
@@ -77,9 +80,25 @@ export function trigger(target, key) {
 export function triggerEffects(dep) {
   // Vue3 原句：spread into array for stabilization
   const effects: ReactiveEffect[] = isArray(dep) ? dep : [...dep];
-  // 触发所有 RE
+  // 必须先触发所有 computed 的 RE
+  // 否则会造成访问 computed 而其 _dirty 还未置位
+  // 因此取到错误的缓存值而非重新计算最新值
   for (const effect of effects) {
-    // 若定义了调度器则使用，而非直接执行
+    if (effect.computed) {
+      triggerEffect(effect);
+    }
+  }
+  // 触发其它 RE
+  for (const effect of effects) {
+    if (!effect.computed) {
+      triggerEffect(effect);
+    }
+  }
+}
+
+function triggerEffect(effect) {
+  if (effect !== activeEffect) {
+    // 若有调度器，执行调度器逻辑
     if (effect.scheduler) {
       effect.scheduler();
     } else {
